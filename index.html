@@ -24,38 +24,18 @@
   <div id="status">Вход в систему...</div>
 
   <script>
-    // ВСТАВЬ СЮДА ТВОЮ ССЫЛКУ .../exec (без изменений)
     var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyiXQzXONmWEyi9hKPzdfAEaBlWkqt85zIejqN0v8TA5_pdbHlmg-P6YlKz8zEvaEqF/exec';
-
     var statusEl = document.getElementById('status');
 
-    function showError(msg) {
-      statusEl.innerHTML = '❌ ' + msg + '<br><br>' +
-        '<a href="' + APPS_SCRIPT_URL + '">Открыть обычный вход по PIN</a>';
-    }
-
     if (!window.Telegram || !window.Telegram.WebApp || !window.Telegram.WebApp.initData) {
-      showError('Не удалось получить данные Telegram.');
+      statusEl.innerHTML = '❌ Не удалось получить данные Telegram.<br><br>' +
+        '<a href="' + APPS_SCRIPT_URL + '">Открыть обычный вход по PIN</a>';
     } else {
       var tg = window.Telegram.WebApp;
       tg.ready();
-
-      fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        body: tg.initData,
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-      })
-        .then(function (res) { return res.json(); })
-        .then(function (data) {
-          if (data.ok && data.token) {
-            window.location.href = APPS_SCRIPT_URL + '?telegramLoginToken=' + encodeURIComponent(data.token);
-          } else {
-            showError(data.error || 'Не удалось войти.');
-          }
-        })
-        .catch(function (err) {
-          showError('Ошибка сети: ' + err.message);
-        });
+      // Просто перенаправляем браузер, без fetch — так не возникает
+      // проблем с CORS при кросс-доменном запросе к Apps Script.
+      window.location.replace(APPS_SCRIPT_URL + '?tgInitData=' + encodeURIComponent(tg.initData));
     }
   </script>
 </body>
