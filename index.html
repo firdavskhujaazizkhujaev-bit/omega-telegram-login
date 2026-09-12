@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Вход...</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: #f1f5f9;
+      color: #334155;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <div id="status">Вход в систему...</div>
+
+  <script>
+    // ВСТАВЬ СЮДА ТВОЮ ССЫЛКУ .../exec (без изменений)
+    var APPS_SCRIPT_URL = 'ВСТАВЬ_СЮДА_ССЫЛКУ_.../exec';
+
+    var statusEl = document.getElementById('status');
+
+    function showError(msg) {
+      statusEl.innerHTML = '❌ ' + msg + '<br><br>' +
+        '<a href="' + APPS_SCRIPT_URL + '">Открыть обычный вход по PIN</a>';
+    }
+
+    if (!window.Telegram || !window.Telegram.WebApp || !window.Telegram.WebApp.initData) {
+      showError('Не удалось получить данные Telegram.');
+    } else {
+      var tg = window.Telegram.WebApp;
+      tg.ready();
+
+      fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: tg.initData,
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (data.ok && data.token) {
+            window.location.href = APPS_SCRIPT_URL + '?telegramLoginToken=' + encodeURIComponent(data.token);
+          } else {
+            showError(data.error || 'Не удалось войти.');
+          }
+        })
+        .catch(function (err) {
+          showError('Ошибка сети: ' + err.message);
+        });
+    }
+  </script>
+</body>
+</html>
